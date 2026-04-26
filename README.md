@@ -5,7 +5,7 @@ The relationship level changes depending on how well the message is understood.
 
 ## Demo
 
-[Live Demo](ここにデプロイリンク)
+[Live Demo](https://zitatori-nihongomate-app-ntud4y.streamlit.app/)
 
 ## Screenshot
 
