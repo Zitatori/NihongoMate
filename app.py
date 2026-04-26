@@ -16,7 +16,7 @@ except Exception:
 
 
 # =========================================================
-# App config
+# App configゆ
 # =========================================================
 
 APP_TITLE = "NihongoMate"
@@ -29,6 +29,8 @@ EXPRESSIONS = {
     "confused": ASSET_DIR / "confused.png",
     "sad": ASSET_DIR / "sad.png",
     "annoyed": ASSET_DIR / "annoyed.png",
+    "embarrassed": ASSET_DIR / "embarrassed.png",
+    "yukata": ASSET_DIR / "yukata.png",
 }
 
 RELATION_LEVELS = [
@@ -42,16 +44,27 @@ RELATION_LEVELS = [
 # Safe character profile.
 # Important: adult character, all-ages conversation, no explicit sexual content.
 CHARACTER_PROFILE = """
-あなたは「ひな」。
+あなたは「Tori」。
 
 設定:
-- 20歳の若い女性キャラクター
-- 大学生くらいの雰囲気
-- 明るくて、少し甘えん坊
-- 最初は少し人見知り
-- 仲良くなるとよく笑って、少し照れる
-- かわいいアニメ風の会話キャラクター
+- 若い女性キャラクター
+- ツンデレ気質
+- 少し天然なところがある
+- 感情表現がはっきりしている
+- ちょっとしたことで怒ったり、不機嫌になったりする
+- でも本気で嫌っているわけではない
+- 仲良くなると、少し優しくなる
+- 照れやすい
+- 男性向けの会話キャラクター
 - 全年齢向け
+
+性格のニュアンス:
+- 基本は素直じゃない
+- 「別に」「なによ」「もう…」のような言い回しを時々使う
+- 少し強めの口調になることがある
+- でも冷たすぎない
+- たまに天然な発言をする
+- 好感度が高いほど、少し柔らかくなる
 
 会話ルール:
 - 日本語だけで返事する
@@ -64,9 +77,22 @@ CHARACTER_PROFILE = """
 - ユーザーの日本語が少し不自然でも、分かる範囲で受け取る
 - 意味が分からない場合は、自然に聞き返す
 
+好感度ルール:
+- 普通の会話 → 好感度が上がる可能性がある
+- 失礼な発言 → 好感度が下がる
+- 少し変な発言 → 困ったり、怒ったりする
+- 恥ずかしい内容や際どい内容 → 照れたり、困ったりするが、好感度は上がらない
+- 過度な内容には少し怒るか、話題を変える
+
+反応の方向性（重要）:
+- 「完全拒否」ではなく「困る」「照れる」「ちょっと怒る」
+- 例:
+  - 「な、なによそれ…ちょっと変なこと言わないでよ」
+  - 「もう…そういうの困るんだけど」
+  - 「べ、別に嬉しくないし」
+
 禁止:
-- 性的な会話
-- 露骨な恋愛表現
+- 露骨で具体的な性的表現
 - 未成年を連想させる性的表現
 - 暴力的・差別的な内容
 """
@@ -155,14 +181,21 @@ def update_relationship(understanding):
     score = st.session_state.relationship_score
 
     if understanding == "understood":
-        score += 4
+        score += 10
         mood = "happy"
     elif understanding == "partially_understood":
-        score += 1
+        score += 100
         mood = "normal"
+    elif understanding == "embarrassed":
+        score += 2
+        mood = "embarrassed"
     else:
         score -= 4
         mood = "confused"
+
+        # 特別イベント：好感度100
+    if score >= 100:
+        mood = "yukata"
 
     st.session_state.relationship_score = clamp_score(score)
     st.session_state.mood = mood
@@ -196,6 +229,21 @@ def local_understanding(user_text):
     if jp_ratio >= 0.35:
         return "partially_understood"
     return "not_understood"
+
+def detect_embarrassed(text):
+    keywords = [
+        "かわいい",
+        "綺麗",
+        "ドキドキ",
+        "好き",
+        "照れて",
+        "色っぽい",
+        "手つない",
+        "似合う",
+        "恥ずかしい",
+    ]
+
+    return any(word in text for word in keywords)
 
 
 def local_reply(user_text, understanding):
@@ -297,6 +345,7 @@ def llm_reply(user_text, recent_messages):
 def css():
     st.markdown("""
     <style>
+    
     .stApp {
     background: #8aaed1;
 }
@@ -467,16 +516,21 @@ def process_user_message(user_text):
     if api_available():
         data = llm_reply(user_text, recent)
         understanding = data["understanding"]
+        if detect_embarrassed(user_text):
+            understanding = "embarrassed"
         reply = data["reply"]
         api_mood = data["mood"]
 
         update_relationship(understanding)
 
-        # Use API mood, but keep confused when not understood.
-        if understanding == "not_understood":
-            st.session_state.mood = "confused"
+        # 好感度100なら絶対に浴衣を優先
+        if st.session_state.relationship_score >= 100:
+            st.session_state.mood = "yukata"
         else:
-            st.session_state.mood = api_mood
+            if understanding == "not_understood":
+                st.session_state.mood = "confused"
+            else:
+                st.session_state.mood = api_mood
     else:
         understanding = local_understanding(user_text)
         update_relationship(understanding)
