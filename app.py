@@ -48,7 +48,7 @@ CHARACTER_PROFILE = """
 
 設定:
 - 若い女性キャラクター
-- ツンデレ気質
+- 少しツンデレ気質でも好感度が30%以上ツンデレ要素は抑える
 - 少し天然なところがある
 - 感情表現がはっきりしている
 - ちょっとしたことで怒ったり、不機嫌になったりする
@@ -351,8 +351,6 @@ def css():
         max-width: 720px;
         padding-top: 1.5rem;
     }
-    
-    
 
     .top-card {
         background: linear-gradient(180deg, #fff5fb 0%, #eef7ff 100%);
@@ -379,7 +377,6 @@ def css():
         color: #444;
         font-size: 16px;
     }
-
 
     .row-user {
         display: flex;
@@ -438,6 +435,12 @@ def css():
         border-radius: 18px;
         width: 100%;
     }
+    [data-testid="stImage"] img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 50%;
+}
     </style>
     """, unsafe_allow_html=True)
 
@@ -457,7 +460,7 @@ def render_character():
 
 
     if img_path.exists():
-        st.image(str(img_path), width=300)
+        st.image(str(img_path), width=200)
     else:
         st.markdown("### 🌸")
         st.markdown('<div class="hint">assets/hina に画像を入れると表示されます</div>', unsafe_allow_html=True)
@@ -472,44 +475,40 @@ def render_character():
 
 
 def render_chat():
-    rows = load_messages(limit=100)
+    rows = load_messages(limit=1000)
 
-    st.markdown('<div class="chat">', unsafe_allow_html=True)
-
-    if not rows:
-        st.markdown("""
-        <div class="row-ai">
-          <div class="bubble-ai">
-            こんにちは。ひなだよ。<br>
-            日本語で話してくれたらうれしいな。
-          </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    for role, content, score, mood, understanding in rows:
-        content_html = safe_html(content)
-
-        if role == "user":
-            st.markdown(f"""
-            <div class="row-user">
-              <div class="bubble-user">
-                {content_html}
-                <div class="read">既読</div>
+    with st.container(height=350):
+        if not rows:
+            st.markdown("""
+            <div class="row-ai">
+              <div class="bubble-ai">
+                こんにちは。Toriだよ。<br>
+                日本語で話してくれたらうれしいな。
               </div>
             </div>
             """, unsafe_allow_html=True)
-        else:
-            st.markdown(f"""
-            <div class="row-ai">
-              <div class="bubble-ai">{content_html}</div>
-            </div>
-            """, unsafe_allow_html=True)
 
-    st.markdown('</div>', unsafe_allow_html=True)
+        for role, content, score, mood, understanding in rows:
+            content_html = safe_html(content)
 
+            if role == "user":
+                st.markdown(f"""
+                <div class="row-user">
+                  <div class="bubble-user">
+                    {content_html}
+                    <div class="read">既読</div>
+                  </div>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown(f"""
+                <div class="row-ai">
+                  <div class="bubble-ai">{content_html}</div>
+                </div>
+                """, unsafe_allow_html=True)
 
 def process_user_message(user_text):
-    recent = load_messages(limit=30)
+    recent = load_messages(limit=100)
 
     if api_available():
         data = llm_reply(user_text, recent)
@@ -561,9 +560,7 @@ def main():
     if "mood" not in st.session_state:
         st.session_state.mood = "normal"
 
-    st.image("assets/NihongoMate.png", width=250)
-    st.caption("日本語だけで距離が縮まる、LINE風AI会話シミュレーション")
-
+    st.image("assets/NihongoMate.png", width=200)
     with st.sidebar:
         st.subheader("状態")
         st.write(f"好感度: {st.session_state.relationship_score}/100")
