@@ -34,5 +34,4 @@ The relationship level changes depending on how well the message is understood.
 ```bash
 pip install -r requirements.txt
 streamlit run app.py
-- キャラクター追加
-- PWA化
+
