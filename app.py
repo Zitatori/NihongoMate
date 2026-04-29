@@ -347,19 +347,7 @@ def css():
     .stApp {
     background: #8aaed1;
 }
-    .block-container {
-        max-width: 720px;
-        padding-top: 1.5rem;
-    }
-
-    .top-card {
-        background: linear-gradient(180deg, #fff5fb 0%, #eef7ff 100%);
-        border-radius: 26px;
-        padding: 14px 12px 10px;
-        text-align: center;
-        border: 1px solid rgba(0,0,0,0.06);
-    }
-
+  
     .name {
         font-size: 22px;
         font-weight: 800;
@@ -375,7 +363,7 @@ def css():
         background: rgba(255, 192, 203, 0.9);        
         border: 1px solid rgba(0,0,0,0.08);
         color: #444;
-        font-size: 16px;
+        font-size: 10px;
     }
 
     .row-user {
@@ -468,7 +456,7 @@ def render_character():
     score = st.session_state.relationship_score
     st.markdown('<div class="name">ひな</div>', unsafe_allow_html=True)
     st.markdown(
-        f'<div class="status">関係: {relation_label(score)} ・ 好感度 {score}/100 ・ 気分 {mood}</div>',
+        f'<div class="status">好感度 {score}/100 ・ {mood}</div>',
         unsafe_allow_html=True
     )
     st.markdown('</div>', unsafe_allow_html=True)
