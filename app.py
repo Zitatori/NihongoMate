@@ -61,8 +61,6 @@ CHARACTER_PROFILE = """
 性格のニュアンス:
 - 基本は素直じゃない
 - 「別に」「なによ」「もう…」のような言い回しを時々使う
-- 少し強めの口調になることがある
-- でも冷たすぎない
 - たまに天然な発言をする
 - 好感度が高いほど、少し柔らかくなる
 
@@ -353,6 +351,8 @@ def css():
         max-width: 720px;
         padding-top: 1.5rem;
     }
+    
+    
 
     .top-card {
         background: linear-gradient(180deg, #fff5fb 0%, #eef7ff 100%);
@@ -371,16 +371,14 @@ def css():
 
     .status {
         display: inline-block;
-        padding: 6px 12px;
+        padding: 12px 24px;
         margin-top: 6px;
         border-radius: 999px;
-        background: rgba(255,255,255,0.9);
+        background: rgba(255, 192, 203, 0.9);        
         border: 1px solid rgba(0,0,0,0.08);
         color: #444;
-        font-size: 13px;
+        font-size: 16px;
     }
-
-   
 
 
     .row-user {
@@ -394,7 +392,7 @@ def css():
         justify-content: flex-start;
         margin: 8px 0;
     }
-
+    
     .bubble-user {
         max-width: 78%;
         background: #92ee87;
@@ -418,7 +416,7 @@ def css():
         box-shadow: 0 2px 5px rgba(0,0,0,0.08);
         word-break: break-word;
     }
-
+    
     .read {
         text-align: right;
         font-size: 10px;
@@ -459,7 +457,7 @@ def render_character():
 
 
     if img_path.exists():
-        st.image(str(img_path), width=200)
+        st.image(str(img_path), width=300)
     else:
         st.markdown("### 🌸")
         st.markdown('<div class="hint">assets/hina に画像を入れると表示されます</div>', unsafe_allow_html=True)
